@@ -1,9 +1,9 @@
 import { gsap } from 'gsap';
-import { rand } from '../lib/env.js';
 
 /**
- * The page "downloads itself": 16 segments fill in parallel, the counter races to 100,
- * then the curtain splits. Resolves when the curtain starts opening.
+ * Onboarding in miniature: the terms appear, the mayor's signature writes itself,
+ * the approval stamp slams down, and the contract flies away to reveal the city.
+ * Resolves when the reveal starts. Click to hurry it along.
  */
 export function runPreloader({ reduce }) {
   const root = document.querySelector('.preloader');
@@ -12,56 +12,30 @@ export function runPreloader({ reduce }) {
     root.remove();
     return Promise.resolve();
   }
-
-  const bar = root.querySelector('[data-pl-bar]');
-  const pctEl = root.querySelector('[data-pl-pct]');
-  const sizeEl = root.querySelector('[data-pl-size]');
-  const speedEl = root.querySelector('[data-pl-speed]');
-  const threadsEl = root.querySelector('[data-pl-threads]');
-  const fills = [];
-  for (let i = 0; i < 16; i++) {
-    const seg = document.createElement('span');
-    const fill = document.createElement('i');
-    seg.appendChild(fill);
-    bar.appendChild(seg);
-    fills.push(fill);
-  }
+  const contract = root.querySelector('.contract');
+  const pct = root.querySelector('[data-pl-pct]');
+  const counter = { v: 0 };
 
   return new Promise((resolve) => {
-    const tl = gsap.timeline({ defaults: { ease: 'none' } });
-    tl.from(root.querySelector('.preloader-inner'), { y: 20, opacity: 0, duration: 0.5, ease: 'power3.out' });
-
-    const fillStart = tl.duration();
-    fills.forEach((fill) => {
-      tl.to(fill, { scaleX: 1, duration: rand(0.9, 1.5), ease: 'power1.inOut' }, fillStart + rand(0, 0.35));
-    });
-
-    const counter = { p: 0 };
-    tl.to(
-      counter,
-      {
-        p: 1,
-        duration: tl.duration() - fillStart,
-        ease: 'power1.inOut',
-        onUpdate() {
-          const p = counter.p;
-          pctEl.textContent = Math.round(p * 100);
-          sizeEl.textContent = (p * 64).toFixed(1);
-          speedEl.textContent = p >= 1 ? '0.0' : (38 + Math.sin(p * 20) * 9 + Math.random() * 6).toFixed(1);
-          threadsEl.textContent = p >= 1 ? 0 : Math.min(16, Math.ceil(p * 60));
-        },
-      },
-      fillStart,
-    );
-
-    tl.to(bar, { scaleX: 0, transformOrigin: '100% 50%', duration: 0.5, ease: 'expo.in' }, '+=0.1');
-    tl.to(root.querySelector('.preloader-inner'), { y: -30, opacity: 0, duration: 0.45, ease: 'power3.in' }, '<0.15');
-    tl.add(() => {
-      root.classList.add('is-done');
-      resolve();
-    });
-    tl.to(root.querySelector('.preloader-panel--top'), { yPercent: -100, duration: 1.1, ease: 'expo.inOut' }, '<');
-    tl.to(root.querySelector('.preloader-panel--bottom'), { yPercent: 100, duration: 1.1, ease: 'expo.inOut' }, '<');
-    tl.add(() => root.remove());
+    const tl = gsap.timeline();
+    tl.from(contract, { y: 60, rotation: -3, opacity: 0, duration: 0.7, ease: 'back.out(1.6)' })
+      .from(root.querySelectorAll('.contract-terms li'), { x: -16, opacity: 0, duration: 0.35, stagger: 0.12, ease: 'power2.out' }, '-=0.3')
+      .fromTo(root.querySelector('[data-sig]'), { drawSVG: '0%' }, { drawSVG: '100%', duration: 1.1, ease: 'power1.inOut' }, '-=0.1')
+      .fromTo(
+        root.querySelector('.stamp'),
+        { scale: 2.6, rotation: -40, opacity: 0 },
+        { scale: 1, rotation: -12, opacity: 0.92, duration: 0.32, ease: 'power4.in' },
+        '-=0.15',
+      )
+      .to(contract, { keyframes: { x: [0, -6, 5, -3, 2, 0], y: [0, 3, -2, 1, 0, 0] }, duration: 0.35, ease: 'none' })
+      .to(counter, { v: 100, duration: tl.duration(), ease: 'power1.inOut', onUpdate: () => (pct.textContent = Math.round(counter.v)) }, 0)
+      .add(() => {
+        root.classList.add('is-done');
+        resolve();
+      }, '+=0.2')
+      .to(contract, { y: () => -window.innerHeight * 1.1, rotation: 10, duration: 0.9, ease: 'power3.in' }, '<')
+      .to(root, { autoAlpha: 0, duration: 0.6, ease: 'power2.inOut' }, '<0.3')
+      .add(() => root.remove());
+    root.addEventListener('click', () => tl.timeScale(4), { once: true });
   });
 }

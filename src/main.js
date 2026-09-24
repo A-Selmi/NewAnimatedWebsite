@@ -4,25 +4,24 @@ import './styles/sections.css';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
-import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
-import { TextPlugin } from 'gsap/TextPlugin';
+import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 
 import { finePointer, reduceMotion } from './lib/env.js';
 import { bindAnchors, initSmoothScroll, scrollState } from './lib/smooth.js';
 import { runPreloader } from './modules/preloader.js';
 import { initCursor, initMagnetic } from './modules/cursor.js';
-import { heroIntro, initHeroScroll, initRotator } from './modules/hero.js';
-import { initAppMock } from './modules/appMock.js';
+import { diveIn, initZoom } from './modules/zoom.js';
 import { initMarquee } from './modules/marquee.js';
-import { initThreads } from './modules/threads.js';
-import { initCardFX, initDemos } from './modules/features.js';
-import { initFlow } from './modules/flow.js';
-import { initHandoff } from './modules/handoff.js';
-import { initDownload, initNav, initReveals, initStats, initTheme, initWordmark } from './modules/ui.js';
+import { initBuild } from './modules/build.js';
+import { initLand } from './modules/land.js';
+import { initLogic } from './modules/logic.js';
+import { initDecorate } from './modules/decorate.js';
+import { initSystems } from './modules/systems.js';
+import { initPassport } from './modules/passport.js';
+import { heroIntro, initNav, initReveals, initRoadmap, initShare, initTheme, initWordmark } from './modules/ui.js';
 
-gsap.registerPlugin(ScrollTrigger, SplitText, ScrambleTextPlugin, MotionPathPlugin, DrawSVGPlugin, TextPlugin);
+gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, ScrambleTextPlugin);
 
 const ctx = { reduce: reduceMotion };
 
@@ -33,50 +32,66 @@ async function boot() {
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
 
-  initTheme(ctx);
-  initDownload(ctx);
-
   const lenis = ctx.reduce ? null : initSmoothScroll();
   lenis?.stop();
   bindAnchors();
-
   if (!ctx.reduce) {
     if (finePointer) initCursor();
     initMagnetic();
   }
 
-  const scenePromise = import('./modules/heroScene.js')
-    .then(({ initHeroScene }) => initHeroScene(document.querySelector('.hero-canvas'), { reduce: ctx.reduce, scrollState }))
-    .catch(() => ({ boost() {} }));
+  // Three.js is split into its own chunk and loads while the contract signs itself.
+  const canvas = document.querySelector('.city-canvas');
+  const cityPromise = import('./modules/city/scene.js')
+    .then(({ createCity }) => createCity(canvas))
+    .catch(() => {
+      canvas.remove();
+      return null;
+    });
+
+  let city = null;
+  initTheme({
+    reduce: ctx.reduce,
+    onChange: (next) => {
+      if (!city) return;
+      gsap.to(city.themeState, {
+        t: next === 'night' ? 1 : 0,
+        duration: ctx.reduce ? 0 : 1.4,
+        ease: 'power2.inOut',
+        onUpdate: () => {
+          city.applyTheme();
+          if (ctx.reduce) city.render();
+        },
+      });
+    },
+  });
 
   await fontsReady();
+  city = await cityPromise;
 
-  initAppMock(ctx);
+  // Pinned sections are created top to bottom so ScrollTrigger spacing stays correct.
+  initZoom({ reduce: ctx.reduce, city });
   initMarquee(scrollState, ctx);
-  initThreads(ctx);
-  initCardFX(ctx);
-  initDemos(ctx);
-  initFlow(ctx);
-  initHandoff(ctx);
-  initStats(ctx);
+  initBuild(ctx);
+  initLand(ctx);
+  initLogic(ctx);
+  initDecorate(ctx);
+  initSystems(ctx);
+  initPassport(ctx);
+  initRoadmap(ctx);
+  initShare();
   initNav();
   initWordmark(ctx);
   initReveals(ctx);
 
-  let intro = null;
-  if (!ctx.reduce) {
-    initHeroScroll();
-    intro = heroIntro().pause();
-  }
-
+  const intro = ctx.reduce ? null : heroIntro();
   ScrollTrigger.refresh();
-  const [scene] = await Promise.all([scenePromise, runPreloader(ctx)]);
+  await runPreloader(ctx);
 
   if (!ctx.reduce) {
-    scene.boost();
+    diveIn(city);
     intro.play();
     lenis?.start();
-    initRotator();
   }
 }
 

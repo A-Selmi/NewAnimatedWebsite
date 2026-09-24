@@ -1,9 +1,9 @@
 {
-  "name": "motrix-animated",
+  "name": "zoomcity-site",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "An over-the-top animated landing page for the Motrix download manager (unofficial fan remake).",
+  "description": "Animated website for ZoomCity, a city builder in development where you zoom from the city into every room.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
