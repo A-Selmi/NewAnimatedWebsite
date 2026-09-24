@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Motrix — Download everything, faster</title>
+    <meta
+      name="description"
+      content="An animated remake of the Motrix landing page: a free, open-source download manager for macOS, Windows and Linux with HTTP, FTP, BitTorrent and Magnet support."
+    />
+    <meta name="theme-color" content="#07070c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@200..900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      try {
+        var t = localStorage.getItem('motrix-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <!-- ───────────────── Preloader: a "download" of the page itself ───────────────── -->
+    <div class="preloader" aria-hidden="true">
+      <div class="preloader-panel preloader-panel--top"></div>
+      <div class="preloader-panel preloader-panel--bottom"></div>
+      <div class="preloader-inner">
+        <div class="preloader-file">
+          <span class="preloader-icon">
+            <svg viewBox="0 0 32 32"><use href="#logo-mark" /></svg>
+          </span>
+          <div>
+            <b>motrix-experience.pkg</b>
+            <small><span data-pl-size>0.0</span> / 64.0 MB · <span data-pl-speed>0.0</span> MB/s · <span data-pl-threads>0</span> threads</small>
+          </div>
+        </div>
+        <div class="preloader-bar" data-pl-bar></div>
+        <div class="preloader-pct"><span data-pl-pct>0</span><sup>%</sup></div>
+      </div>
+    </div>
+
+    <!-- Shared SVG symbols -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <linearGradient id="brand-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#7c5cff" />
+          <stop offset=".55" stop-color="#22d3ee" />
+          <stop offset="1" stop-color="#ff4ecd" />
+        </linearGradient>
+        <symbol id="logo-mark" viewBox="0 0 32 32">
+          <rect width="32" height="32" rx="9" fill="url(#brand-grad)" />
+          <path d="M9.5 8.5 16 14l6.5-5.5M9.5 14.5 16 20l6.5-5.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M10.5 24.5h11" stroke="#fff" stroke-width="2.6" stroke-linecap="round" />
+        </symbol>
+        <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12m0 0-5-5m5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 8v4l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></symbol>
+        <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2" /></symbol>
+        <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></symbol>
+        <symbol id="i-magnet" viewBox="0 0 24 24"><path d="M6 3v8a6 6 0 0 0 12 0V3h-4v8a2 2 0 0 1-4 0V3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="M6 7h4m4 0h4" stroke="currentColor" stroke-width="2" /></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+        <symbol id="i-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z" /></symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor" /><path d="M12 1.5v3m0 15v3M1.5 12h3m15 0h3M4.6 4.6l2.1 2.1m10.6 10.6 2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor" /></symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+      </defs>
+    </svg>
+
+    <!-- Cursor, grain, aurora, page "download" progress -->
+    <div class="cursor" aria-hidden="true">
+      <div class="cursor-ring"><span class="cursor-label"></span></div>
+      <div class="cursor-dot"></div>
+    </div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="page-progress" aria-hidden="true">
+      <span class="page-progress-fill"></span>
+      <span class="page-progress-label"><span data-page-pct>0</span>% downloaded</span>
+    </div>
+
+    <!-- ───────────────── Navigation ───────────────── -->
+    <header class="nav">
+      <div class="nav-inner container">
+        <a class="nav-logo" href="#top" data-magnetic="0.25" aria-label="Motrix home">
+          <svg viewBox="0 0 32 32" width="30" height="30"><use href="#logo-mark" /></svg>
+          <span>Motrix</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#threads">Engine</a>
+          <a href="#features">Features</a>
+          <a href="#flow">How it works</a>
+          <a href="#extension">Extension</a>
+          <a href="#download">Download</a>
+        </nav>
+        <div class="nav-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle light and dark theme" data-cursor="Flip">
+            <svg class="tt-sun" viewBox="0 0 24 24"><use href="#i-sun" /></svg>
+            <svg class="tt-moon" viewBox="0 0 24 24"><use href="#i-moon" /></svg>
+          </button>
+          <a class="nav-gh" href="https://github.com/agalwood/Motrix" target="_blank" rel="noopener" data-magnetic="0.3" aria-label="Motrix on GitHub">
+            <svg viewBox="0 0 24 24" width="20" height="20"><use href="#i-github" /></svg>
+          </a>
+          <a class="btn btn--primary btn--sm" href="#download" data-magnetic="0.3"><span class="btn-label">Get it free</span></a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ───────────────── Hero ───────────────── -->
+      <section class="hero" id="top">
+        <canvas class="hero-canvas" aria-hidden="true"></canvas>
+        <div class="hero-vignette" aria-hidden="true"></div>
+
+        <div class="hero-inner container">
+          <a class="pill" href="#extension" data-hero-in data-magnetic="0.15">
+            <span class="pill-dot"></span>
+            <span>New: hand off downloads straight from your browser</span>
+            <svg class="pill-arrow" viewBox="0 0 24 24" width="14" height="14"><use href="#i-arrow" /></svg>
+          </a>
+
+          <h1 class="hero-title" aria-label="Download everything. Faster.">
+            <span class="hero-line" data-hero-split aria-hidden="true">Download</span>
+            <span class="hero-line hero-line--rot" aria-hidden="true"><span class="hero-rotator grad-text" data-rotator>everything.</span></span>
+            <span class="hero-line" data-hero-split aria-hidden="true">Faster.</span>
+          </h1>
+
+          <p class="hero-sub" data-hero-in>
+            A free, open-source download manager for macOS, Windows and Linux. HTTP, FTP, BitTorrent and Magnet links,
+            split across up to 64 threads. No ads, no account, no nonsense.
+          </p>
+
+          <div class="hero-ctas" data-hero-in>
+            <a class="btn btn--primary btn--lg" href="#download" data-magnetic data-cursor="Grab">
+              <span class="btn-label">
+                <svg viewBox="0 0 24 24" width="18" height="18"><use href="#i-down" /></svg>
+                <span>Download for <span data-os-name>desktop</span></span>
+              </span>
+            </a>
+            <a class="btn btn--ghost btn--lg" href="https://github.com/agalwood/Motrix" target="_blank" rel="noopener" data-magnetic>
+              <span class="btn-label">
+                <svg viewBox="0 0 24 24" width="18" height="18"><use href="#i-github" /></svg>
+                View source
+              </span>
+            </a>
+          </div>
+          <p class="hero-meta" data-hero-in>Free forever <i></i> MIT licensed <i></i> Built on aria2</p>
+        </div>
+
+        <!-- App window mock -->
+        <div class="hero-stage">
+          <div class="float-layer" data-depth="0.6">
+            <div class="float-badge fb-1"><span class="fb-dot"></span>64 threads</div>
+          </div>
+          <div class="float-layer" data-depth="1">
+            <div class="float-badge fb-2">
+              <svg viewBox="0 0 24 24" width="16" height="16"><use href="#i-magnet" /></svg>Magnet link added
+            </div>
+          </div>
+          <div class="float-layer" data-depth="0.8">
+            <div class="float-badge fb-3"><svg viewBox="0 0 24 24" width="16" height="16"><use href="#i-check" /></svg>Port mapped via UPnP</div>
+          </div>
+          <div class="float-layer" data-depth="1.3">
+            <div class="float-badge fb-4 mono">↓ <span data-badge-speed>128.4</span> MB/s</div>
+          </div>
+
+          <div class="app-scroll">
+            <div class="app-tilt">
+              <div class="app-window" data-app>
+                <div class="app-titlebar">
+                  <span class="app-dots"><i></i><i></i><i></i></span>
+                  <span class="app-title">Motrix</span>
+                  <span class="app-speed mono">↓ <b data-total-speed>0.0</b> MB/s</span>
+                </div>
+                <div class="app-body">
+                  <aside class="app-side">
+                    <svg class="app-side-logo" viewBox="0 0 32 32"><use href="#logo-mark" /></svg>
+                    <span class="app-side-item is-active"><svg viewBox="0 0 24 24"><use href="#i-down" /></svg></span>
+                    <span class="app-side-item"><svg viewBox="0 0 24 24"><use href="#i-clock" /></svg></span>
+                    <span class="app-side-item"><svg viewBox="0 0 24 24"><use href="#i-stop" /></svg></span>
+                    <span class="app-side-item app-side-bottom"><svg viewBox="0 0 24 24"><use href="#i-gear" /></svg></span>
+                  </aside>
+                  <div class="app-main">
+                    <div class="app-toolbar">
+                      <div>
+                        <h4>Downloading</h4>
+                        <small><span data-active-count>4</span> active · 64 threads each</small>
+                      </div>
+                      <span class="app-add">+ New task</span>
+                    </div>
+                    <ul class="tasks">
+                      <li class="task" data-size="5800" data-speed="46" data-p="0.42">
+                        <span class="task-icon" style="--tc: var(--c1)">ISO</span>
+                        <div class="task-info">
+                          <div class="task-row"><span class="task-name">distro-24.04-desktop-amd64.iso</span><span class="task-state">Downloading</span></div>
+                          <div class="task-bar"><span></span></div>
+                          <div class="task-meta mono"><span data-done>0 MB</span> / 5.8 GB <em>·</em> <span data-speed>0</span> MB/s <em>·</em> <span data-eta>--</span></div>
+                        </div>
+                      </li>
+                      <li class="task" data-size="3100" data-speed="31" data-p="0.7">
+                        <span class="task-icon" style="--tc: var(--c3)"><svg viewBox="0 0 24 24"><use href="#i-magnet" /></svg></span>
+                        <div class="task-info">
+                          <div class="task-row"><span class="task-name">open-movie-collection-4k</span><span class="task-state">Downloading</span></div>
+                          <div class="task-bar"><span></span></div>
+                          <div class="task-meta mono"><span data-done>0 MB</span> / 3.1 GB <em>·</em> <span data-speed>0</span> MB/s <em>·</em> <span data-eta>--</span></div>
+                        </div>
+                      </li>
+                      <li class="task" data-size="420" data-speed="19" data-p="0.15">
+                        <span class="task-icon" style="--tc: var(--c2)">TXZ</span>
+                        <div class="task-info">
+                          <div class="task-row"><span class="task-name">render-engine-4.2-linux-x64.tar.xz</span><span class="task-state">Downloading</span></div>
+                          <div class="task-bar"><span></span></div>
+                          <div class="task-meta mono"><span data-done>0 MB</span> / 420 MB <em>·</em> <span data-speed>0</span> MB/s <em>·</em> <span data-eta>--</span></div>
+                        </div>
+                      </li>
+                      <li class="task" data-size="1200" data-speed="24" data-p="0.88">
+                        <span class="task-icon" style="--tc: #f59e0b">ZIP</span>
+                        <div class="task-info">
+                          <div class="task-row"><span class="task-name">podcast-archive-2026.zip</span><span class="task-state">Downloading</span></div>
+                          <div class="task-bar"><span></span></div>
+                          <div class="task-meta mono"><span data-done>0 MB</span> / 1.2 GB <em>·</em> <span data-speed>0</span> MB/s <em>·</em> <span data-eta>--</span></div>
+                        </div>
+                      </li>
+                    </ul>
+                    <div class="app-graph">
+                      <svg viewBox="0 0 300 60" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="graph-fill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="var(--c2)" stop-opacity=".45" />
+                            <stop offset="1" stop-color="var(--c2)" stop-opacity="0" />
+                          </linearGradient>
+                        </defs>
+                        <path class="graph-area" data-graph-area d="" />
+                        <path class="graph-line" data-graph-line d="" />
+                      </svg>
+                      <span class="app-graph-label mono">Speed · last 60s</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="scroll-hint" aria-hidden="true"><span>Scroll</span><i></i></div>
+      </section>
+
+      <!-- ───────────────── Velocity marquee ───────────────── -->
+      <section class="marquee" aria-label="Supported protocols and highlights">
+        <div class="marquee-row" data-marquee="1">
+          <div class="marquee-track">
+            <span>HTTP</span><b>✦</b><span class="outline">HTTPS</span><b>✦</b><span>FTP</span><b>✦</b><span class="outline">BitTorrent</span><b>✦</b><span>Magnet</span><b>✦</b>
+          </div>
+        </div>
+        <div class="marquee-row marquee-row--alt" data-marquee="-1">
+          <div class="marquee-track">
+            <span>64 threads</span><b>●</b><span class="outline">10 tasks at once</span><b>●</b><span>Speed limits</span><b>●</b><span class="outline">UPnP</span><b>●</b><span>NAT-PMP</span><b>●</b><span class="outline">Dark mode</span><b>●</b>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────────── 64 threads (pinned, scroll-scrubbed) ───────────────── -->
+      <section class="threads" id="threads">
+        <div class="threads-pin container">
+          <div class="threads-copy">
+            <p class="eyebrow" data-reveal>The engine</p>
+            <h2 class="h2" data-split>One file.<br /><span class="grad-text">Sixty-four lanes.</span></h2>
+            <p class="lead" data-reveal>
+              Motrix slices each download into as many as 64 segments and pulls every one of them at the same time. Your
+              connection stops idling and starts working. Scroll to watch it happen.
+            </p>
+            <div class="race" data-reveal>
+              <div class="race-row">
+                <span class="race-label">Single thread</span>
+                <div class="race-bar"><i data-race-single></i></div>
+                <b class="mono" data-race-single-pct>0%</b>
+              </div>
+              <div class="race-row">
+                <span class="race-label">Motrix · 64</span>
+                <div class="race-bar race-bar--multi"><i data-race-multi></i></div>
+                <b class="mono" data-race-multi-pct>0%</b>
+              </div>
+            </div>
+          </div>
+          <div class="threads-visual">
+            <div class="grid64" data-grid64></div>
+            <div class="threads-hud mono">
+              <div><small>Progress</small><b><span data-hud-pct>0</span>%</b></div>
+              <div><small>Active threads</small><b data-hud-threads>0</b></div>
+              <div><small>Throughput</small><b><span data-hud-speed>0</span> MB/s</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────────── Feature bento ───────────────── -->
+      <section class="features" id="features">
+        <div class="container">
+          <header class="section-head">
+            <p class="eyebrow" data-reveal>Everything included</p>
+            <h2 class="h2" data-split>Small app.<br /><span class="grad-text">Serious toolkit.</span></h2>
+            <p class="lead" data-reveal>Every feature below is animated with the real thing it does. Hover the cards — they notice.</p>
+          </header>
+
+          <div class="bento">
+            <!-- BitTorrent selective download -->
+            <article class="card card--w2" data-card data-demo="bt">
+              <div class="card-copy">
+                <h3>Pick the files you want</h3>
+                <p>Open a torrent, tick what you need, skip the rest. Selective BitTorrent downloads save disk and time.</p>
+              </div>
+              <div class="demo demo-bt">
+                <div class="bt-head mono">▾ open-movie-collection/</div>
+                <ul class="bt-list mono">
+                  <li data-mb="820"><span class="chk"><svg viewBox="0 0 24 24"><use href="#i-check" /></svg></span><span class="bt-name">feature-film-2160p.mkv</span><span class="bt-size">820 MB</span></li>
+                  <li data-mb="2100"><span class="chk"><svg viewBox="0 0 24 24"><use href="#i-check" /></svg></span><span class="bt-name">extras/behind-the-scenes/</span><span class="bt-size">2.1 GB</span></li>
+                  <li data-mb="0.05"><span class="chk"><svg viewBox="0 0 24 24"><use href="#i-check" /></svg></span><span class="bt-name">subtitles/ar.srt</span><span class="bt-size">48 KB</span></li>
+                  <li data-mb="0.05"><span class="chk"><svg viewBox="0 0 24 24"><use href="#i-check" /></svg></span><span class="bt-name">subtitles/en.srt</span><span class="bt-size">46 KB</span></li>
+                  <li data-mb="310"><span class="chk"><svg viewBox="0 0 24 24"><use href="#i-check" /></svg></span><span class="bt-name">poster-artwork.zip</span><span class="bt-size">310 MB</span></li>
+                </ul>
+                <div class="bt-total mono">Selected <b data-bt-total>0 MB</b> of 3.2 GB</div>
+              </div>
+            </article>
+
+            <!-- Trackers -->
+            <article class="card" data-card data-demo="trackers">
+              <div class="card-copy">
+                <h3>Fresh trackers, daily</h3>
+                <p>The tracker list refreshes itself every day, so torrents find peers faster.</p>
+              </div>
+              <div class="demo demo-trackers">
+                <div class="trk-badge mono"><svg class="trk-sync" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>Synced today</div>
+                <div class="trk-window">
+                  <ul class="trk-list mono">
+                    <li>udp://tracker-01.example.net:1337</li>
+                    <li>udp://open.example-peers.org:6969</li>
+                    <li>https://announce.example.io:443</li>
+                    <li>udp://tracker.example-swarm.cc:80</li>
+                    <li>udp://p2p.example-relay.dev:2710</li>
+                    <li>http://tracker.example.xyz:8080</li>
+                  </ul>
+                </div>
+              </div>
+            </article>
+
+            <!-- Speed limit -->
+            <article class="card card--h2" data-card data-demo="gauge">
+              <div class="card-copy">
+                <h3>Speed limits that stick</h3>
+                <p>Cap uploads and downloads so the rest of the house can still stream in peace.</p>
+              </div>
+              <div class="demo demo-gauge">
+                <svg viewBox="0 0 200 170" class="gauge">
+                  <defs>
+                    <linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0" stop-color="var(--c2)" />
+                      <stop offset=".5" stop-color="var(--c1)" />
+                      <stop offset="1" stop-color="var(--c3)" />
+                    </linearGradient>
+                  </defs>
+                  <path class="gauge-track" d="M30.72 140 A80 80 0 1 1 169.28 140" />
+                  <path class="gauge-fill" data-gauge-fill d="M30.72 140 A80 80 0 1 1 169.28 140" />
+                  <g class="gauge-ticks" data-gauge-ticks></g>
+                  <g class="gauge-limit" data-gauge-limit><circle r="6" /></g>
+                  <g class="gauge-needle" data-gauge-needle><path d="M100 100 L100 36" /><circle cx="100" cy="100" r="7" /></g>
+                </svg>
+                <div class="gauge-read mono"><b data-gauge-val>0</b><span>MB/s</span></div>
+                <div class="gauge-chip mono" data-gauge-chip>Limit · 40 MB/s</div>
+              </div>
+            </article>
+
+            <!-- UPnP -->
+            <article class="card" data-card data-demo="upnp">
+              <div class="card-copy">
+                <h3>UPnP &amp; NAT-PMP</h3>
+                <p>Ports get mapped on your router automatically. No forwarding rules to fiddle with.</p>
+              </div>
+              <div class="demo demo-upnp">
+                <svg viewBox="0 0 280 90">
+                  <path id="upnp-a" class="upnp-link" d="M40 45 C 80 10, 110 10, 140 45" />
+                  <path id="upnp-b" class="upnp-link" d="M140 45 C 170 80, 200 80, 240 45" />
+                  <g class="upnp-node" transform="translate(40 45)"><circle r="18" /><rect x="-8" y="-6" width="16" height="11" rx="2" /><path d="M-10 8h20" /></g>
+                  <g class="upnp-node upnp-node--router" transform="translate(140 45)"><circle r="20" /><rect x="-10" y="-2" width="20" height="9" rx="2" /><path d="M-5 -2 -8 -10M5 -2 8 -10" /></g>
+                  <g class="upnp-node" transform="translate(240 45)"><circle r="18" /><circle r="9" class="upnp-globe" /><path d="M-9 0h18M0 -9c4 4 4 14 0 18M0 -9c-4 4-4 14 0 18" class="upnp-globe" /></g>
+                  <circle class="upnp-packet" data-upnp-pa r="4" />
+                  <circle class="upnp-packet upnp-packet--b" data-upnp-pb r="4" />
+                </svg>
+                <div class="upnp-port mono"><span class="upnp-dot"></span><span data-upnp-port>TCP 51413</span> mapped</div>
+              </div>
+            </article>
+
+            <!-- User agent -->
+            <article class="card" data-card data-demo="ua">
+              <div class="card-copy">
+                <h3>Wear any User-Agent</h3>
+                <p>Some servers are picky. Present yourself as whichever client they expect.</p>
+              </div>
+              <div class="demo demo-ua mono">
+                <div><span class="ua-verb">GET</span> /files/release.iso HTTP/1.1</div>
+                <div><span class="ua-key">Host:</span> mirror.example.org</div>
+                <div><span class="ua-key">User-Agent:</span> <span class="ua-val" data-ua>Chrome</span><span class="caret"></span></div>
+              </div>
+            </article>
+
+            <!-- Notifications -->
+            <article class="card" data-card data-demo="notify">
+              <div class="card-copy">
+                <h3>Know when it lands</h3>
+                <p>A native notification the moment a download finishes. Go make tea.</p>
+              </div>
+              <div class="demo demo-notify" data-notify-stage></div>
+            </article>
+
+            <!-- i18n -->
+            <article class="card card--w2" data-card data-demo="i18n">
+              <div class="card-copy">
+                <h3>Speaks your language</h3>
+                <p>The interface is translated by the community into a long list of languages, right-to-left ones included.</p>
+              </div>
+              <div class="demo demo-i18n">
+                <span class="i18n-word" data-i18n-word>Hello</span>
+                <span class="i18n-lang mono" data-i18n-lang>English</span>
+              </div>
+            </article>
+
+            <!-- Dark mode -->
+            <article class="card card--theme" data-card data-demo="theme">
+              <div class="card-copy">
+                <h3>Dark mode, obviously</h3>
+                <p>Easy on the eyes at 2 a.m. Try it on this page.</p>
+              </div>
+              <div class="demo demo-theme">
+                <div class="orb"><span class="orb-mask"></span></div>
+                <button class="btn btn--ghost btn--sm" type="button" data-theme-toggle data-cursor="Flip"><span class="btn-label">Flip the lights</span></button>
+              </div>
+            </article>
+
+            <!-- Tray -->
+            <article class="card" data-card data-demo="tray">
+              <div class="card-copy">
+                <h3>Lives in your tray</h3>
+                <p>Control tasks from the menu bar. On macOS the live speed sits right there, too.</p>
+              </div>
+              <div class="demo demo-tray">
+                <div class="tray-bar mono">
+                  <svg viewBox="0 0 32 32" width="14" height="14"><use href="#logo-mark" /></svg>
+                  <span>↓ <b data-tray-down>12.4</b> MB/s</span>
+                  <span class="tray-up">↑ <b data-tray-up>1.1</b></span>
+                  <span class="tray-clock" data-tray-clock>09:41</span>
+                </div>
+                <div class="tray-pop">
+                  <div class="tray-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                  <div class="tray-actions mono"><span>Pause all</span><span>Resume all</span></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Concurrent -->
+            <article class="card card--w4" data-card data-demo="concurrent">
+              <div class="card-copy">
+                <h3>Ten downloads at once</h3>
+                <p>Queue as much as you like. Up to ten tasks run side by side, the rest wait politely.</p>
+              </div>
+              <div class="demo demo-concurrent">
+                <div class="cc-lanes">
+                  <i style="--d: 3.1s; --o: -0.4s"></i><i style="--d: 4.7s; --o: -2.1s"></i><i style="--d: 2.6s; --o: -1.3s"></i><i style="--d: 5.2s; --o: -3.9s"></i><i style="--d: 3.8s; --o: -0.9s"></i>
+                  <i style="--d: 4.1s; --o: -2.8s"></i><i style="--d: 2.9s; --o: -1.7s"></i><i style="--d: 6s; --o: -4.4s"></i><i style="--d: 3.4s; --o: -2.2s"></i><i style="--d: 4.4s; --o: -0.2s"></i>
+                </div>
+                <div class="cc-count mono"><b>10</b>/10 active</div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────────── Horizontal flow ───────────────── -->
+      <section class="flow" id="flow">
+        <div class="flow-pin">
+          <div class="flow-head container">
+            <p class="eyebrow" data-reveal>From link to done</p>
+            <h2 class="h2" data-split>Four steps. <span class="grad-text">Zero friction.</span></h2>
+          </div>
+          <div class="flow-track">
+            <article class="flow-panel" data-flow="paste">
+              <span class="flow-num">01</span>
+              <div class="flow-text">
+                <h3>Paste anything</h3>
+                <p>A URL, a .torrent file or a magnet link. Motrix figures out the rest.</p>
+              </div>
+              <div class="flow-visual">
+                <div class="fv-input mono"><span class="fv-typed" data-fv-typed></span><span class="caret"></span></div>
+                <div class="fv-row"><span class="fv-chip" data-fv-kind>Magnet</span><span class="fv-go">Start</span></div>
+              </div>
+            </article>
+            <article class="flow-panel" data-flow="tune">
+              <span class="flow-num">02</span>
+              <div class="flow-text">
+                <h3>Tune it</h3>
+                <p>Choose a folder, set the split count, rename on the fly. Or just keep the smart defaults.</p>
+              </div>
+              <div class="flow-visual">
+                <div class="fv-field mono"><small>Save to</small><span>~/Downloads/Motrix</span></div>
+                <div class="fv-slider">
+                  <small class="mono">Split</small>
+                  <div class="fv-track"><span class="fv-fill" data-fv-fill></span><span class="fv-knob" data-fv-knob></span></div>
+                  <b class="mono" data-fv-split>1</b>
+                </div>
+              </div>
+            </article>
+            <article class="flow-panel" data-flow="fly">
+              <span class="flow-num">03</span>
+              <div class="flow-text">
+                <h3>Watch it fly</h3>
+                <p>Segments stream in parallel. Pause, resume and reorder whenever you like.</p>
+              </div>
+              <div class="flow-visual fv-warp">
+                <div class="fv-lines" data-fv-lines></div>
+                <div class="fv-speed mono"><b data-fv-speed>0</b><small>MB/s</small></div>
+              </div>
+            </article>
+            <article class="flow-panel" data-flow="done">
+              <span class="flow-num">04</span>
+              <div class="flow-text">
+                <h3>Done. Ding.</h3>
+                <p>A notification, the file in your folder, and your evening back.</p>
+              </div>
+              <div class="flow-visual fv-done">
+                <svg viewBox="0 0 120 120" class="fv-check">
+                  <circle cx="60" cy="60" r="50" data-fv-ring />
+                  <path d="M38 62 L54 78 L84 44" data-fv-tick />
+                </svg>
+                <div class="fv-burst" data-fv-burst></div>
+              </div>
+            </article>
+          </div>
+          <div class="flow-progress container"><span data-flow-progress></span></div>
+        </div>
+      </section>
+
+      <!-- ───────────────── Browser hand-off ───────────────── -->
+      <section class="handoff" id="extension">
+        <div class="container handoff-grid">
+          <div class="handoff-copy">
+            <p class="eyebrow" data-reveal>Browser extension</p>
+            <h2 class="h2" data-split>Catch every <span class="grad-text">click.</span></h2>
+            <p class="lead" data-reveal>
+              Add the companion extension to your browser and the downloads you start there are handed straight to Motrix,
+              with all 64 threads behind them.
+            </p>
+            <ul class="browser-chips" data-reveal>
+              <li>Chrome</li>
+              <li>Edge</li>
+              <li>Firefox</li>
+            </ul>
+          </div>
+          <div class="handoff-stage" data-handoff>
+            <div class="mock-browser" data-hf-browser>
+              <div class="mb-bar">
+                <span class="app-dots"><i></i><i></i><i></i></span>
+                <div class="mb-url mono">releases.example.org/app/latest</div>
+              </div>
+              <div class="mb-page">
+                <div class="mb-line" style="width: 62%"></div>
+                <div class="mb-line mb-line--thin" style="width: 84%"></div>
+                <div class="mb-line mb-line--thin" style="width: 70%"></div>
+                <div class="mb-card">
+                  <div class="mb-file">
+                    <span class="mb-file-icon">ZIP</span>
+                    <div><b>app-release-v3.zip</b><small class="mono">1.8 GB</small></div>
+                  </div>
+                  <span class="mb-btn" data-hf-btn>Download</span>
+                </div>
+                <div class="mb-line mb-line--thin" style="width: 76%"></div>
+                <div class="mb-line mb-line--thin" style="width: 48%"></div>
+              </div>
+            </div>
+            <div class="mock-mini" data-hf-app>
+              <div class="mm-bar"><svg viewBox="0 0 32 32" width="16" height="16"><use href="#logo-mark" /></svg><span>Motrix</span><span class="mm-speed mono" data-hf-speed>↓ 0 MB/s</span></div>
+              <ul class="mm-list">
+                <li class="mm-task mm-task--new" data-hf-task>
+                  <span class="mm-name">app-release-v3.zip</span>
+                  <span class="mm-bar-track"><i data-hf-fill></i></span>
+                  <span class="mm-status mono" data-hf-status>Queued</span>
+                </li>
+                <li class="mm-task">
+                  <span class="mm-name">wallpapers-pack.zip</span>
+                  <span class="mm-bar-track"><i style="transform: scaleX(1)"></i></span>
+                  <span class="mm-status mono is-done">Completed</span>
+                </li>
+                <li class="mm-task">
+                  <span class="mm-name">lecture-notes.pdf</span>
+                  <span class="mm-bar-track"><i style="transform: scaleX(1)"></i></span>
+                  <span class="mm-status mono is-done">Completed</span>
+                </li>
+              </ul>
+            </div>
+            <svg class="hf-svg" data-hf-svg aria-hidden="true"><path data-hf-path d="" /></svg>
+            <div class="hf-packet" data-hf-packet><svg viewBox="0 0 24 24"><use href="#i-down" /></svg></div>
+            <div class="hf-cursor" data-hf-cursor>
+              <svg viewBox="0 0 24 24"><path d="M4 2l16 9-7 2-3 7z" /></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────────── Stats ───────────────── -->
+      <section class="stats">
+        <div class="container stats-grid">
+          <div class="stat" data-reveal><b class="grad-text" data-count="64">0</b><span>threads per task</span></div>
+          <div class="stat" data-reveal><b class="grad-text" data-count="10">0</b><span>downloads in parallel</span></div>
+          <div class="stat" data-reveal><b class="grad-text" data-count="3">0</b><span>desktop platforms</span></div>
+          <div class="stat" data-reveal><b class="grad-text" data-count="0" data-from="99">0</b><span>ads, fees or sign-ups</span></div>
+        </div>
+      </section>
+
+      <!-- ───────────────── Download ───────────────── -->
+      <section class="download" id="download">
+        <div class="container">
+          <header class="section-head section-head--center">
+            <p class="eyebrow" data-reveal>Download</p>
+            <h2 class="h2 h2--xl" data-split>Ready when <span class="grad-text">you are.</span></h2>
+            <p class="lead" data-reveal>Free and open source under the MIT license. Grab the latest release from GitHub.</p>
+          </header>
+
+          <div class="platforms">
+            <article class="platform" data-os="mac" data-card>
+              <span class="platform-badge mono">Recommended for you</span>
+              <div class="platform-icon">
+                <svg viewBox="0 0 24 24"><path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <h3>macOS</h3>
+              <p class="mono">Apple silicon &amp; Intel · .dmg</p>
+              <a class="btn btn--primary" href="https://github.com/agalwood/Motrix/releases/latest" target="_blank" rel="noopener" data-magnetic><span class="btn-label"><svg viewBox="0 0 24 24" width="16" height="16"><use href="#i-down" /></svg>Download</span></a>
+            </article>
+            <article class="platform" data-os="windows" data-card>
+              <span class="platform-badge mono">Recommended for you</span>
+              <div class="platform-icon">
+                <svg viewBox="0 0 48 48"><rect x="8" y="8" width="14" height="14" rx="3" fill="currentColor" /><rect x="26" y="8" width="14" height="14" rx="3" fill="currentColor" opacity=".7" /><rect x="8" y="26" width="14" height="14" rx="3" fill="currentColor" opacity=".7" /><rect x="26" y="26" width="14" height="14" rx="3" fill="currentColor" opacity=".45" /></svg>
+              </div>
+              <h3>Windows</h3>
+              <p class="mono">Installer &amp; portable · .exe</p>
+              <a class="btn btn--primary" href="https://github.com/agalwood/Motrix/releases/latest" target="_blank" rel="noopener" data-magnetic><span class="btn-label"><svg viewBox="0 0 24 24" width="16" height="16"><use href="#i-down" /></svg>Download</span></a>
+            </article>
+            <article class="platform" data-os="linux" data-card>
+              <span class="platform-badge mono">Recommended for you</span>
+              <div class="platform-icon">
+                <svg viewBox="0 0 48 48"><rect x="6" y="9" width="36" height="30" rx="5" fill="none" stroke="currentColor" stroke-width="3" /><path d="m14 20 5 4-5 4M23 29h10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <h3>Linux</h3>
+              <p class="mono">AppImage · snap · deb · rpm</p>
+              <a class="btn btn--primary" href="https://github.com/agalwood/Motrix/releases/latest" target="_blank" rel="noopener" data-magnetic><span class="btn-label"><svg viewBox="0 0 24 24" width="16" height="16"><use href="#i-down" /></svg>Download</span></a>
+            </article>
+          </div>
+
+          <div class="terminal" data-terminal data-reveal>
+            <div class="terminal-bar">
+              <span class="app-dots"><i></i><i></i><i></i></span>
+              <div class="terminal-tabs" role="tablist" aria-label="Package managers">
+                <button type="button" role="tab" aria-selected="true" data-cmd="brew install --cask motrix">Homebrew</button>
+                <button type="button" role="tab" aria-selected="false" data-cmd="sudo snap install motrix">Snap</button>
+                <button type="button" role="tab" aria-selected="false" data-cmd="flatpak install flathub net.agalwood.Motrix">Flatpak</button>
+              </div>
+              <button type="button" class="terminal-copy mono" data-copy data-cursor="Copy">Copy</button>
+            </div>
+            <div class="terminal-body mono"><span class="terminal-prompt">$</span> <span data-term-text></span><span class="caret"></span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ───────────────── Footer ───────────────── -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-top">
+          <div>
+            <p class="footer-kicker">Stop waiting on downloads.</p>
+            <a class="btn btn--primary btn--lg" href="#download" data-magnetic><span class="btn-label"><svg viewBox="0 0 24 24" width="18" height="18"><use href="#i-down" /></svg>Get Motrix</span></a>
+          </div>
+          <nav class="footer-links" aria-label="Footer">
+            <div>
+              <h4>Project</h4>
+              <a href="https://github.com/agalwood/Motrix" target="_blank" rel="noopener">Source code</a>
+              <a href="https://github.com/agalwood/Motrix/releases" target="_blank" rel="noopener">Releases</a>
+              <a href="https://github.com/agalwood/Motrix/issues" target="_blank" rel="noopener">Report an issue</a>
+            </div>
+            <div>
+              <h4>This page</h4>
+              <a href="#threads">Engine</a>
+              <a href="#features">Features</a>
+              <a href="#top" data-to-top>Back to top ↑</a>
+            </div>
+          </nav>
+        </div>
+        <div class="wordmark" data-wordmark aria-label="Motrix">MOTRIX</div>
+        <div class="footer-bottom">
+          <p>Unofficial animated fan remake. Motrix is an MIT-licensed project by agalwood and contributors; this page is not affiliated with it.</p>
+          <p class="mono">Made with GSAP · Three.js · Lenis</p>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
