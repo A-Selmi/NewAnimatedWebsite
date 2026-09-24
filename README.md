@@ -1,27 +1,24 @@
-# Motrix — animated remake
+# ZoomCity — website
 
-An over-the-top animated landing page for [Motrix](https://github.com/agalwood/Motrix), the free, open-source download manager.
-Unofficial fan project: original design, copy and logo; not affiliated with the Motrix project.
+An animated website for **ZoomCity**, a city builder in development for PC (Steam) and mobile: build a city with real-life rules, then zoom from the whole city into any building, floor and room and decorate every corner.
 
-**Stack:** Vite · GSAP 3 (ScrollTrigger, SplitText, ScrambleText, MotionPath, DrawSVG, Text) · Three.js · Lenis
+**Stack:** Vite · Three.js · GSAP 3 (ScrollTrigger, SplitText, DrawSVG, ScrambleText) · Lenis
 
-## What moves
+## What's on the page
 
-| Section | Animation |
+| Section | What it does |
 | --- | --- |
-| Preloader | The page "downloads itself": 16 segments fill in parallel, live MB/s + thread counter, curtain split |
-| Hero | WebGL warp tunnel (~3k particles with streak tails that stretch with scroll velocity, mouse parallax, warp burst on load), split-char 3D headline, scrambling word rotator, magnetic CTAs |
-| App window | Live download simulation: progress bars, jittering speeds, ETAs, completion flashes, rolling throughput graph; tilts with the pointer and flattens on scroll |
-| Marquee | Infinite rows whose speed follows scroll velocity, flip direction with scroll direction, and skew |
-| 64 threads | Pinned, scroll-scrubbed 8×8 segment grid vs. a crawling single-thread bar, live HUD |
-| Features bento | 3D tilt + cursor spotlight cards, each with its own live demo (torrent file picker, tracker ticker, speed gauge with limiter, UPnP packets, User-Agent scramble, notification stack, split-flap greetings incl. Arabic, tray meter, 10 parallel lanes) |
-| How it works | Pinned horizontal scroll; typed links, slider, warp lines, self-drawing check + confetti |
-| Browser hand-off | Cursor clicks a download, the file flies along a motion path into the app and completes |
-| Stats / Download | Counters, OS detection with rotating conic border, typed install commands with copy |
-| Footer | Wordmark that reveals in 3D and reacts to the cursor with variable-font weight |
-| Global | Lenis smooth scroll, blend-mode cursor, grain, aurora, page "download" progress bar, circular view-transition theme switch |
+| Contract intro | You "sign" the residency contract: terms appear, the signature writes itself, the approval stamp slams down |
+| The zoom | A procedural 3D city (traffic, trees, street lamps, clouds). Scrolling drives the camera City → Building → Floor → Room: the upper floors lift away, then the camera steps inside and a lamp flickers on. Breadcrumb, zoom rail, minimap pin, "City view" jump, double-click to go one level deeper, and hover-to-inspect buildings at City level |
+| Construction | Scroll-scrubbed build: foundation → amber skeleton (crane working) → walls & roof → finished, paying each stage from the $50,000 balance |
+| Land | Greenfield / Coastal / Desert / Arctic with terrain accents, live weather particles and cost modifiers |
+| Real-life logic | Pinned horizontal row of cards flipping from each game rule to its real-world parallel |
+| Decorate | A playable floor plan: pick furniture, green/red placement (door swing, window, collisions), rotate, undo/redo, clear to storage vs. clear and delete, decor spend tracker |
+| Systems | Live mini-sims: utility coverage, resident approval, quality tiers, warehouse auto-arrange, recycling tiers, rush build |
+| Passport | Type a name to generate a citizen ID, signature (cursive / sign here / stamp) and machine-readable line; tilt and flip the card |
+| Roadmap | Design status: chapters 1–6 locked, what's in design now, what comes next |
 
-`prefers-reduced-motion` is respected: no preloader, smooth scroll or loops; every section renders its final state.
+Day/night toggle re-lights the whole 3D city (windows and street lamps glow at night). `prefers-reduced-motion` is respected: no intro, smooth scroll or pinning, and every section shows a still, readable state.
 
 ## Develop
 
@@ -34,5 +31,4 @@ npm run preview
 
 ## Deploy
 
-`.github/workflows/deploy.yml` builds and publishes `dist/` to GitHub Pages on every push to `main`.
-Enable it once under **Settings → Pages → Source: GitHub Actions**.
+`.github/workflows/deploy.yml` publishes `dist/` to GitHub Pages on every push to `main`.
